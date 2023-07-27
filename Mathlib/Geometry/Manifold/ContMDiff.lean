@@ -741,7 +741,7 @@ theorem contMDiffWithinAt_insert_self :
   refine Iff.rfl.and <| (contDiffWithinAt_congr_nhds ?_).trans contDiffWithinAt_insert_self
   simp only [← map_extChartAt_nhdsWithin I, nhdsWithin_insert, Filter.map_sup, Filter.map_pure]
 
-alias contMDiffWithinAt_insert_self ↔ ContMDiffWithinAt.of_insert ContMDiffWithinAt.insert
+alias ⟨ContMDiffWithinAt.of_insert, ContMDiffWithinAt.insert⟩ := contMDiffWithinAt_insert_self
 
 theorem ContMDiffAt.contMDiffWithinAt (hf : ContMDiffAt I I' n f x) :
     ContMDiffWithinAt I I' n f s x :=
@@ -1337,8 +1337,8 @@ theorem contMDiffWithinAt_iff_contDiffWithinAt {f : E → E'} {s : Set E} {x : E
   exact ContDiffWithinAt.continuousWithinAt
 #align cont_mdiff_within_at_iff_cont_diff_within_at contMDiffWithinAt_iff_contDiffWithinAt
 
-alias contMDiffWithinAt_iff_contDiffWithinAt ↔
-  ContMDiffWithinAt.contDiffWithinAt ContDiffWithinAt.contMDiffWithinAt
+alias ⟨ContMDiffWithinAt.contDiffWithinAt, ContDiffWithinAt.contMDiffWithinAt⟩ :=
+  contMDiffWithinAt_iff_contDiffWithinAt
 #align cont_mdiff_within_at.cont_diff_within_at ContMDiffWithinAt.contDiffWithinAt
 #align cont_diff_within_at.cont_mdiff_within_at ContDiffWithinAt.contMDiffWithinAt
 
@@ -1347,7 +1347,7 @@ theorem contMDiffAt_iff_contDiffAt {f : E → E'} {x : E} :
   rw [← contMDiffWithinAt_univ, contMDiffWithinAt_iff_contDiffWithinAt, contDiffWithinAt_univ]
 #align cont_mdiff_at_iff_cont_diff_at contMDiffAt_iff_contDiffAt
 
-alias contMDiffAt_iff_contDiffAt ↔ ContMDiffAt.contDiffAt ContDiffAt.contMDiffAt
+alias ⟨ContMDiffAt.contDiffAt, ContDiffAt.contMDiffAt⟩ := contMDiffAt_iff_contDiffAt
 #align cont_mdiff_at.cont_diff_at ContMDiffAt.contDiffAt
 #align cont_diff_at.cont_mdiff_at ContDiffAt.contMDiffAt
 
@@ -1356,7 +1356,7 @@ theorem contMDiffOn_iff_contDiffOn {f : E → E'} {s : Set E} :
   forall_congr' <| by simp [contMDiffWithinAt_iff_contDiffWithinAt]
 #align cont_mdiff_on_iff_cont_diff_on contMDiffOn_iff_contDiffOn
 
-alias contMDiffOn_iff_contDiffOn ↔ ContMDiffOn.contDiffOn ContDiffOn.contMDiffOn
+alias ⟨ContMDiffOn.contDiffOn, ContDiffOn.contMDiffOn⟩ := contMDiffOn_iff_contDiffOn
 #align cont_mdiff_on.cont_diff_on ContMDiffOn.contDiffOn
 #align cont_diff_on.cont_mdiff_on ContDiffOn.contMDiffOn
 
@@ -1364,7 +1364,7 @@ theorem contMDiff_iff_contDiff {f : E → E'} : ContMDiff 𝓘(𝕜, E) 𝓘(�
   rw [← contDiffOn_univ, ← contMDiffOn_univ, contMDiffOn_iff_contDiffOn]
 #align cont_mdiff_iff_cont_diff contMDiff_iff_contDiff
 
-alias contMDiff_iff_contDiff ↔ ContMDiff.contDiff ContDiff.contMDiff
+alias ⟨ContMDiff.contDiff, ContDiff.contMDiff⟩ := contMDiff_iff_contDiff
 #align cont_mdiff.cont_diff ContMDiff.contDiff
 #align cont_diff.cont_mdiff ContDiff.contMDiff
 
@@ -2173,4 +2173,3 @@ theorem isLocalStructomorphOn_contDiffGroupoid_iff (f : LocalHomeomorph M M') :
 #align is_local_structomorph_on_cont_diff_groupoid_iff isLocalStructomorphOn_contDiffGroupoid_iff
 
 end
-

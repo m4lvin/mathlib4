@@ -93,7 +93,7 @@ theorem _root_.Decidable.List.eq_or_ne_mem_of_mem [DecidableEq α]
 #align list.eq_or_ne_mem_of_mem List.eq_or_ne_mem_of_mem
 
 -- porting note: from init.data.list.lemmas
-alias mem_cons ↔ eq_or_mem_of_mem_cons _
+alias ⟨eq_or_mem_of_mem_cons, _⟩ := mem_cons
 #align list.eq_or_mem_of_mem_cons List.eq_or_mem_of_mem_cons
 
 #align list.not_mem_append List.not_mem_append
@@ -177,7 +177,7 @@ theorem map_bind (g : β → List γ) (f : α → β) :
 
 #align list.length_pos_iff_exists_mem List.length_pos_iff_exists_mem
 
-alias length_pos ↔ ne_nil_of_length_pos length_pos_of_ne_nil
+alias ⟨ne_nil_of_length_pos, length_pos_of_ne_nil⟩ := length_pos
 #align list.ne_nil_of_length_pos List.ne_nil_of_length_pos
 #align list.length_pos_of_ne_nil List.length_pos_of_ne_nil
 
@@ -222,9 +222,9 @@ theorem length_eq_three {l : List α} : l.length = 3 ↔ ∃ a b c, l = [a, b, c
 #align list.length_eq_three List.length_eq_three
 
 -- Porting note: Lean 3 core library had the name length_le_of_sublist
--- and data.list.basic the command `alias length_le_of_sublist ← sublist.length_le`,
+-- and data.list.basic the command `alias sublist.length_le`, := length_le_of_sublist
 -- but Std has the name Sublist.length_le instead.
-alias Sublist.length_le ← length_le_of_sublist
+alias length_le_of_sublist := Sublist.length_le
 #align list.length_le_of_sublist List.length_le_of_sublist
 #align list.sublist.length_le List.Sublist.length_le
 
@@ -333,7 +333,7 @@ fun _ h ↦ (mem_append.1 h).elim (@l₁subl _) (@l₂subl _)
 -- Porting note: in Std
 #align list.append_subset_iff List.append_subset
 
-alias subset_nil ↔ eq_nil_of_subset_nil _
+alias ⟨eq_nil_of_subset_nil, _⟩ := subset_nil
 #align list.eq_nil_of_subset_nil List.eq_nil_of_subset_nil
 
 #align list.eq_nil_iff_forall_not_mem List.eq_nil_iff_forall_not_mem
@@ -1043,7 +1043,7 @@ theorem eq_nil_of_sublist_nil {l : List α} (s : l <+ []) : l = [] :=
 #align list.eq_nil_of_sublist_nil List.eq_nil_of_sublist_nil
 
 -- Porting note: this lemma seems to have been renamed on the occasion of its move to Std4
-alias sublist_nil ← sublist_nil_iff_eq_nil
+alias sublist_nil_iff_eq_nil := sublist_nil
 #align list.sublist_nil_iff_eq_nil List.sublist_nil_iff_eq_nil
 
 #align list.replicate_sublist_replicate List.replicate_sublist_replicate
