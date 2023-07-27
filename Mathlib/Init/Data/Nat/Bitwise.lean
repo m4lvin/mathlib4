@@ -74,7 +74,6 @@ theorem bodd_add (m n : ℕ) : bodd (m + n) = bxor (bodd m) (bodd n) := by
   induction' n with n IH
   · simp
   · simp [add_succ, IH]
-    cases bodd m <;> cases bodd n <;> rfl
 #align nat.bodd_add Nat.bodd_add
 
 @[simp]

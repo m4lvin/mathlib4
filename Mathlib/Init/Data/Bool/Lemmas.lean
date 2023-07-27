@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Mathlib.Init.Data.Bool.Basic
-import Mathlib.Init.Logic
 import Mathlib.Tactic.Coe
 
 /-!
@@ -45,22 +44,18 @@ namespace Bool
 theorem cond_self.{u} {α : Type u} (b : Bool) (a : α) : cond b a a = a := by cases b <;> rfl
 #align cond_a_a Bool.cond_self
 
-@[simp]
-theorem xor_self (b : Bool) : xor b b = false := by cases b <;> simp
 #align bxor_self Bool.xor_self
 
-@[simp]
-theorem xor_true (b : Bool) : xor b true = not b := by cases b <;> simp
+alias xor_true := Bool.xor_true_right
 #align bxor_tt Bool.xor_true
 
-theorem xor_false (b : Bool) : xor b false = b := by cases b <;> simp
+alias xor_false := Bool.xor_false_right
 #align bxor_ff Bool.xor_false
 
-@[simp]
-theorem true_xor (b : Bool) : xor true b = not b := by cases b <;> simp
+alias true_xor := Bool.xor_true_left
 #align tt_bxor Bool.true_xor
 
-theorem false_xor (b : Bool) : xor false b = b := by cases b <;> simp
+alias false_xor := Bool.xor_false_left
 #align ff_bxor Bool.false_xor
 
 theorem true_eq_false_eq_False : ¬true = false := by decide
@@ -165,7 +160,6 @@ theorem or_coe_iff (a b : Bool) : a || b ↔ a ∨ b := by simp
 theorem and_coe_iff (a b : Bool) : a && b ↔ a ∧ b := by simp
 #align band_coe_iff Bool.and_coe_iff
 
-@[simp]
 theorem xor_coe_iff (a b : Bool) : xor a b ↔ Xor' (a = true) (b = true) := by
   cases a <;> cases b <;> exact by decide
 #align bxor_coe_iff Bool.xor_coe_iff
