@@ -353,7 +353,7 @@ theorem chain'_iff_get {R} : ∀ {l : List α}, Chain' R l ↔
   | a :: b :: t => by
     rw [← and_forall_succ, chain'_cons, chain'_iff_get]
     simp
-    dsimp [succ_sub_one]
+    dsimp [Nat.add_one_sub_one]
     exact fun _ => ⟨fun h i hi => h i (Nat.lt_of_succ_lt_succ hi),
                     fun h i hi => h i (Nat.succ_lt_succ hi)⟩
 
