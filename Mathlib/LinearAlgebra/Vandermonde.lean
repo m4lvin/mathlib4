@@ -239,10 +239,10 @@ def polynomial_descFactorial : ℕ  →  ℤ[X]
 theorem descFatorial_eq_polynomial_descFactorial_eval (n k : ℕ) :
     ((polynomial_descFactorial k).eval (n : ℤ)) = (Nat.descFactorial n k)  := by
   induction' k with k hk
-  · simp only [Nat.zero_eq, CharP.cast_eq_zero, polynomial_descFactorial, eval_mul, eval_sub, eval_X, eval_nat_cast,
-      zero_sub, neg_mul, Nat.descFactorial_zero, Nat.cast_one, eval_one]
-  · simp only [polynomial_descFactorial, eval_mul, eval_sub, eval_X, eval_nat_cast, Nat.descFactorial_succ,
-        Nat.cast_mul]
+  · simp only [Nat.zero_eq, CharP.cast_eq_zero, polynomial_descFactorial, eval_mul, eval_sub,
+      eval_X, eval_nat_cast, zero_sub, neg_mul, Nat.descFactorial_zero, Nat.cast_one, eval_one]
+  · simp only [polynomial_descFactorial, eval_mul, eval_sub, eval_X, eval_nat_cast,
+      Nat.descFactorial_succ, Nat.cast_mul]
     simp at hk
     rw [hk]
     simp only [mul_eq_mul_right_iff, Nat.cast_eq_zero, Nat.descFactorial_eq_zero_iff_lt]
@@ -282,7 +282,8 @@ theorem polynomial_descFactorial_degree (n : ℕ) : (polynomial_descFactorial n)
 theorem eval_matrix_of_polynomials_eq_mul_matrix_of_choose {n : ℕ} (v : Fin n → ℕ) :
     (Matrix.of (fun (i j : Fin n) =>
     ((fun n => polynomial_descFactorial n) j).eval ((fun k => (v k : ℤ)) i)) ).det =
-    (∏ i : Fin n,  Nat.factorial i) * (Matrix.of (fun (i j : Fin n)  => ((Nat.choose ((v i)) (j : ℕ)) : ℤ))).det := by
+    (∏ i : Fin n,  Nat.factorial i) *
+    (Matrix.of (fun (i j : Fin n)  => ((Nat.choose ((v i)) (j : ℕ)) : ℤ))).det := by
   convert Matrix.det_mul_row (fun (i : Fin n)  => ((Nat.factorial (i : ℕ)):ℤ)) _
   · rw [Matrix.of_apply, descFatorial_eq_polynomial_descFactorial_eval _ _]
     congr
@@ -293,7 +294,8 @@ theorem superFactorial_eq_prod (n : ℕ) :
     Nat.superFactorial n = (∏ i : Fin (n + 1),  Nat.factorial i) := by
   induction' n with n hn
   · rfl
-  · rw [Nat.superFactorial, hn, Fin.prod_univ_castSucc, mul_comm, Fin.prod_univ_castSucc, Fin.prod_univ_castSucc]
+  · rw [Nat.superFactorial, hn, Fin.prod_univ_castSucc, mul_comm, Fin.prod_univ_castSucc,
+        Fin.prod_univ_castSucc]
     simp only [Fin.coe_castSucc, Fin.val_last, Nat.factorial, Nat.add_eq, add_zero]
 
 theorem superFactorial_dvd_vandermonde_det {n : ℕ} (v : Fin (n + 1) → ℤ) :
