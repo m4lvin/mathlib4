@@ -9,6 +9,8 @@ import Mathlib.MeasureTheory.Measure.Haar.NormedSpace
 import Mathlib.NumberTheory.NumberField.Embeddings
 import Mathlib.RingTheory.Discriminant
 
+import Mathlib.Sandbox
+
 #align_import number_theory.number_field.canonical_embedding from "leanprover-community/mathlib"@"60da01b41bbe4206f05d34fd70c8dd7498717a30"
 
 /-!
@@ -589,8 +591,21 @@ theorem convex_body_sum_symmetric (x : E K) (hx : x ∈ (convex_body_sum K r c B
   exact hx
 
 theorem convex_body_sum_convex : Convex ℝ (convex_body_sum K r c B) := by
-  rw [convex_iff_pointwise_add_subset]
-  intro a b ha hb h
+  refine Convex_subAdditive ℝ ?_ ?_ (B : ℝ)
+  · intro x y
+    simp_rw [Prod.fst_add, Pi.add_apply, Prod.snd_add]
+    refine le_trans (add_le_add
+      (mul_le_mul_of_nonneg_left
+        (Finset.sum_le_sum (fun w _ => norm_add_le (x.1 w) (y.1 w))) r.prop)
+      (mul_le_mul_of_nonneg_left
+        (Finset.sum_le_sum (fun w _ => norm_add_le (x.2 w) (y.2 w))) c.prop)) ?_
+    simp_rw [Finset.sum_add_distrib, mul_add]
+    exact le_of_eq (by ring)
+  · intro c x hc
+    simp_rw [Prod.smul_fst, Prod.smul_snd, Pi.smul_apply, smul_eq_mul, Complex.real_smul, norm_mul,
+      Complex.norm_real, Real.norm_of_nonneg hc, ← Finset.mul_sum]
+    exact le_of_eq (by ring)
+
 
 
 end convex_body_sum
