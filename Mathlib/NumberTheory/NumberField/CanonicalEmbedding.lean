@@ -429,6 +429,28 @@ theorem mem_span_latticeBasis [NumberField K] (x : (E K)) :
 
 end integerLattice
 
+section minkowski
+
+open ENNReal NNReal MeasureTheory Zspan Classical
+
+variable [NumberField K]
+
+instance : @Measure.IsAddHaarMeasure (E K) _ _ _ volume := Measure.prod.instIsAddHaarMeasure _ _
+
+/-- The bound that appears in Minkowski theorem, see
+`MeasureTheory.exists_ne_zero_mem_lattice_of_measure_mul_two_pow_lt_measure`. For the
+computation of the volume of the fundamental domain of `latticeBasis K`, see
+`NumberField.mixedEmbedding.volume_fundamentalDomain_latticeBasis`. -/
+noncomputable def minkowski_bound : ℝ≥0∞ :=
+  volume (fundamentalDomain (latticeBasis K)) * 2 ^ (finrank ℝ (E K))
+
+theorem minkowski_bound_lt_top : minkowski_bound K < ⊤ := by
+  refine mul_lt_top ?_ ?_
+  · exact ne_of_lt (fundamentalDomain_bounded (latticeBasis K)).measure_lt_top
+  · exact ne_of_lt (pow_lt_top (lt_top_iff_ne_top.mpr two_ne_top) _)
+
+end minkowski
+
 section convex_body_lt
 
 open Metric ENNReal NNReal
@@ -521,29 +543,7 @@ theorem adjust_f {w₁ : InfinitePlace K} (B : ℝ≥0) (hf : ∀ w, w ≠ w₁�
       exact fun w hw => pow_ne_zero _ (hf w (Finset.ne_of_mem_erase hw))
     · rw [mult]; split_ifs <;> norm_num
 
-end convex_body_lt
-
-section minkowski
-
-open ENNReal NNReal MeasureTheory Zspan Classical
-
-variable [NumberField K]
-
-/-- The bound that appears in Minkowski theorem, see
-`MeasureTheory.exists_ne_zero_mem_lattice_of_measure_mul_two_pow_lt_measure`. For the
-computation of the volume of the fundamental domain of `latticeBasis K`, see
-`NumberField.mixedEmbedding.volume_fundamentalDomain_latticeBasis`. -/
-noncomputable def minkowski_bound : ℝ≥0∞ :=
-  volume (fundamentalDomain (latticeBasis K)) * 2 ^ (finrank ℝ (E K))
-
-theorem minkowski_bound_lt_top : minkowski_bound K < ⊤ := by
-  refine mul_lt_top ?_ ?_
-  · exact ne_of_lt (fundamentalDomain_bounded (latticeBasis K)).measure_lt_top
-  · exact ne_of_lt (pow_lt_top (lt_top_iff_ne_top.mpr two_ne_top) _)
-
 variable {f : InfinitePlace K → ℝ≥0}
-
-instance : @Measure.IsAddHaarMeasure (E K) _ _ _ volume := Measure.prod.instIsAddHaarMeasure _ _
 
 /-- Assume that `f : InfinitePlace K → ℝ≥0` is such that
 `minkowski_bound K < volume (convex_body_lt K f)` where `convex_body_lt K f` is the set of
@@ -564,6 +564,35 @@ theorem exists_ne_zero_mem_ringOfIntegers_lt (h : minkowski_bound K < volume (co
   rw [ne_eq, AddSubgroup.mk_eq_zero_iff, map_eq_zero, ← ne_eq] at h_nzr
   exact Subtype.ne_of_val_ne h_nzr
 
-end minkowski
+end convex_body_lt
+
+section convex_body_sum
+
+open NNReal BigOperators Classical
+
+variable [NumberField K] (r c B : ℝ≥0)
+
+/-- The convex body defined by `f`: the set of points `x : E` such that `‖x w‖ < f w` for all
+infinite places `w`. -/
+abbrev convex_body_sum : Set (E K) := { x | r * ∑ w, ‖x.1 w‖ + c * ∑ w, ‖x.2 w‖ ≤ B }
+
+theorem convex_body_sum_mem {x : K} :
+    mixedEmbedding K x ∈ (convex_body_sum K r c B) ↔
+      r * ∑ w : {w // InfinitePlace.IsReal w}, w.val x +
+        c * ∑ w : {w // InfinitePlace.IsComplex w}, w.val x ≤ B := by
+  simp_rw [Set.mem_setOf_eq, mixedEmbedding, RingHom.prod_apply, Pi.ringHom_apply,
+    ← Complex.norm_real, embedding_of_isReal_apply, norm_embedding_eq]
+
+theorem convex_body_sum_symmetric (x : E K) (hx : x ∈ (convex_body_sum K r c B)) :
+    -x ∈ (convex_body_sum K r c B) := by
+  simp_rw [Set.mem_setOf_eq, Prod.fst_neg, Prod.snd_neg, Pi.neg_apply, norm_neg]
+  exact hx
+
+theorem convex_body_sum_convex : Convex ℝ (convex_body_sum K r c B) := by
+  rw [convex_iff_pointwise_add_subset]
+  intro a b ha hb h
+
+
+end convex_body_sum
 
 end NumberField.mixedEmbedding
