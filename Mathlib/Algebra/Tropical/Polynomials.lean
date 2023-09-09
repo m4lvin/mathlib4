@@ -17,7 +17,8 @@ open Tropical ENNReal
 
 open scoped Polynomial
 
-universe u v
+universe f
 variable {f : (Tropical ℝ≥0∞)[X]}
 
-#check f 
+#check f
+#check Type f
