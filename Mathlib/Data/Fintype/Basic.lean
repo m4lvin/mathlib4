@@ -1197,7 +1197,7 @@ theorem count_univ (a : α) : count a Finset.univ.val = 1 :=
 
 /-- For functions on finite sets, they are bijections iff they map universes into universes. -/
 @[simp]
-theorem map_univ_eq_univ_of_bijection (f : α → β) :
+theorem bijective_iff_map_univ_eq_univ (f : α → β) :
     Function.Bijective f ↔ map f (Finset.univ : Finset α).val = univ.val := by
   sorry
 
