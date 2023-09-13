@@ -574,8 +574,8 @@ open NNReal BigOperators Classical
 
 variable [NumberField K] (r c B : ℝ≥0)
 
-/-- The convex body defined by `f`: the set of points `x : E` such that `‖x w‖ < f w` for all
-infinite places `w`. -/
+/-- The convex body defined by the three nonnegative real numbers `r`, `c`, and `B`: it is equal to
+the set of points `x : E` such that `r * ∑ w real, ‖x w‖ + c * ∑ w complex, ‖x w‖ < B`. -/
 abbrev convex_body_sum : Set (E K) := { x | r * ∑ w, ‖x.1 w‖ + c * ∑ w, ‖x.2 w‖ ≤ B }
 
 theorem convex_body_sum_mem {x : K} :
@@ -606,7 +606,36 @@ theorem convex_body_sum_convex : Convex ℝ (convex_body_sum K r c B) := by
       Complex.norm_real, Real.norm_of_nonneg hc, ← Finset.mul_sum]
     exact le_of_eq (by ring)
 
+open MeasureTheory MeasureTheory.Measure ENNReal
 
+-- See: https://github.com/leanprover/lean4/issues/2220
+local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y)
+
+noncomputable abbrev vol (r1 r2 : ℕ) : ℝ≥0∞ :=
+    2 ^ r1 * (NNReal.pi / 2) ^ r2 * B ^ (r1 + 2 * r2) / (r1 + 2 * r2).factorial
+
+theorem aux_volume_computation (r1 r2 : ℕ) (h : 1 ≤ r1 + r2) :
+  volume {x : ((Fin r1) → ℝ) × ((Fin r2) → ℂ) |
+    r * ∑ i, ‖x.1 i‖ + c * ∑ j, ‖x.2 j‖ ≤ B } = vol B r1 r2 := by
+  have : ∀ r1,
+      volume {x : ((Fin r1) → ℝ) × ((Fin r2) → ℂ) | r * ∑ i, ‖x.1 i‖ + c * ∑ j, ‖x.2 j‖ ≤ B } =
+        vol B r1 r2 := by
+    intro r1
+    induction r2 with
+    | zero => sorry
+    | succ => sorry
+  induction r1 with
+  | zero => sorry
+  | succ => sorry
+
+theorem convex_body_sum_volume :
+  volume (convex_body_sum K r c B) =
+    2 ^ (Fintype.card {w : InfinitePlace K // IsReal w}) *
+    (NNReal.pi / 2) ^ (Fintype.card {w : InfinitePlace K // IsComplex w})
+      * B ^ (finrank ℚ K) / (finrank ℚ K).factorial := by
+  convert aux_volume_computation r c B (Fintype.card {w : InfinitePlace K // IsReal w})
+    (Fintype.card {w : InfinitePlace K // IsComplex w}) ?_
+  sorry
 
 end convex_body_sum
 
