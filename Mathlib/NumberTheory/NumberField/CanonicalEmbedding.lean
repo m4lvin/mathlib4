@@ -628,7 +628,9 @@ theorem aux_volume_computation (r1 r2 : ℕ) (h : 1 ≤ r1 + r2) :
   | zero => sorry
   | succ => sorry
 
-#synth MeasurableSpace (Fin 2 → ℂ)
+example {α β R : Type*} [Ring R] (e : α ≃ β) : (α → R) ≃ (β → R) := by
+  exact Equiv.piCongrLeft' (fun a ↦ R) e
+
 theorem convex_body_sum_volume :
   volume (convex_body_sum K r c B) =
     2 ^ (Fintype.card {w : InfinitePlace K // IsReal w}) *
