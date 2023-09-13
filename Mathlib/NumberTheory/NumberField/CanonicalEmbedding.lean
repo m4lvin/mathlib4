@@ -628,6 +628,7 @@ theorem aux_volume_computation (r1 r2 : ℕ) (h : 1 ≤ r1 + r2) :
   | zero => sorry
   | succ => sorry
 
+#synth MeasurableSpace (Fin 2 → ℂ)
 theorem convex_body_sum_volume :
   volume (convex_body_sum K r c B) =
     2 ^ (Fintype.card {w : InfinitePlace K // IsReal w}) *
@@ -635,6 +636,15 @@ theorem convex_body_sum_volume :
       * B ^ (finrank ℚ K) / (finrank ℚ K).factorial := by
   convert aux_volume_computation r c B (Fintype.card {w : InfinitePlace K // IsReal w})
     (Fintype.card {w : InfinitePlace K // IsComplex w}) ?_
+  let e1 : (Fin (Fintype.card {w : InfinitePlace K // InfinitePlace.IsReal w}) → ℝ) ≃ᵐ
+      ({w : InfinitePlace K // InfinitePlace.IsReal w} → ℝ) := by
+    let e : (Fin (Fintype.card {w : InfinitePlace K // InfinitePlace.IsReal w})) ≃
+        {w : InfinitePlace K // InfinitePlace.IsReal w} := by
+      exact (Fintype.equivFin { w // InfinitePlace.IsReal w }).symm
+    refine @MeasurableEquiv.piCongrRight
+      (Fin (Fintype.card {w : InfinitePlace K // InfinitePlace.IsReal w})) (fun _ => ℝ)
+        (fun _ => ℝ) _ _ _ _
+    sorry
   sorry
 
 end convex_body_sum
