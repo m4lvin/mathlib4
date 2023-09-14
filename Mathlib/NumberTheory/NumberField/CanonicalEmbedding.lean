@@ -572,33 +572,32 @@ section convex_body_sum
 
 open NNReal BigOperators Classical
 
-variable [NumberField K] (r c B : ℝ≥0)
+variable [NumberField K] (B : ℝ≥0)
 
-/-- The convex body defined by the three nonnegative real numbers `r`, `c`, and `B`: it is equal to
-the set of points `x : E` such that `r * ∑ w real, ‖x w‖ + c * ∑ w complex, ‖x w‖ < B`. -/
-abbrev convex_body_sum : Set (E K) := { x | r * ∑ w, ‖x.1 w‖ + c * ∑ w, ‖x.2 w‖ ≤ B }
+/-- The convex body equal to the set of points `x : E` such that
+`∑ w real, ‖x w‖ + 2 * ∑ w complex, ‖x w‖ ≤ B`. -/
+abbrev convex_body_sum : Set (E K) := { x | ∑ w, ‖x.1 w‖ + 2 * ∑ w, ‖x.2 w‖ ≤ B }
 
 theorem convex_body_sum_mem {x : K} :
-    mixedEmbedding K x ∈ (convex_body_sum K r c B) ↔
-      r * ∑ w : {w // InfinitePlace.IsReal w}, w.val x +
-        c * ∑ w : {w // InfinitePlace.IsComplex w}, w.val x ≤ B := by
+    mixedEmbedding K x ∈ (convex_body_sum K B) ↔
+      ∑ w : {w // InfinitePlace.IsReal w}, w.val x +
+        2 * ∑ w : {w // InfinitePlace.IsComplex w}, w.val x ≤ B := by
   simp_rw [Set.mem_setOf_eq, mixedEmbedding, RingHom.prod_apply, Pi.ringHom_apply,
     ← Complex.norm_real, embedding_of_isReal_apply, norm_embedding_eq]
 
-theorem convex_body_sum_symmetric (x : E K) (hx : x ∈ (convex_body_sum K r c B)) :
-    -x ∈ (convex_body_sum K r c B) := by
+theorem convex_body_sum_symmetric (x : E K) (hx : x ∈ (convex_body_sum K B)) :
+    -x ∈ (convex_body_sum K B) := by
   simp_rw [Set.mem_setOf_eq, Prod.fst_neg, Prod.snd_neg, Pi.neg_apply, norm_neg]
   exact hx
 
-theorem convex_body_sum_convex : Convex ℝ (convex_body_sum K r c B) := by
-  refine Convex_subAdditive ℝ ?_ ?_ (B : ℝ)
+theorem convex_body_sum_convex : Convex ℝ (convex_body_sum K B) := by
+  refine Convex_subAdditive ℝ ?_ ?_ B
   · intro x y
     simp_rw [Prod.fst_add, Pi.add_apply, Prod.snd_add]
     refine le_trans (add_le_add
+      (Finset.sum_le_sum (fun w _ => norm_add_le (x.1 w) (y.1 w)))
       (mul_le_mul_of_nonneg_left
-        (Finset.sum_le_sum (fun w _ => norm_add_le (x.1 w) (y.1 w))) r.prop)
-      (mul_le_mul_of_nonneg_left
-        (Finset.sum_le_sum (fun w _ => norm_add_le (x.2 w) (y.2 w))) c.prop)) ?_
+        (Finset.sum_le_sum (fun w _ => norm_add_le (x.2 w) (y.2 w))) (by norm_num))) ?_
     simp_rw [Finset.sum_add_distrib, mul_add]
     exact le_of_eq (by ring)
   · intro c x hc
@@ -606,30 +605,94 @@ theorem convex_body_sum_convex : Convex ℝ (convex_body_sum K r c B) := by
       Complex.norm_real, Real.norm_of_nonneg hc, ← Finset.mul_sum]
     exact le_of_eq (by ring)
 
-open MeasureTheory MeasureTheory.Measure ENNReal
+open MeasureTheory MeasureTheory.Measure ENNReal Real Fintype
 
 -- See: https://github.com/leanprover/lean4/issues/2220
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y)
 
 noncomputable abbrev vol (r1 r2 : ℕ) : ℝ≥0∞ :=
-    2 ^ r1 * (NNReal.pi / 2) ^ r2 * B ^ (r1 + 2 * r2) / (r1 + 2 * r2).factorial
+    ENNReal.ofReal (2 ^ r1 * (π / 2) ^ r2 * B ^ (r1 + 2 * r2) / (r1 + 2 * r2).factorial)
 
+theorem aux1_volume_computation {α : Type*} (s : Finset α) :
+    volume {x : s → ℝ | ∑ i, ‖x i‖ ≤ B} =
+      ENNReal.ofReal (2 ^ s.card * B ^ s.card / s.card.factorial) := by
+  induction s using Finset.induction with
+  | empty =>
+      simp
+      dsimp [volume]
+      simp_rw [← Set.pi_univ]
+      sorry
+  | insert => sorry
+
+  sorry
+
+
+
+#exit
+
+  induction n, hn using Nat.le_induction with
+  | base =>
+      rw [show {x : Fin 1 → ℝ | ∑ i : Fin 1, ‖x i‖ ≤ B} = Metric.closedBall 0 B by
+        ext; simp [Pi.norm_def]]
+      simp only [zero_le_coe, Real.volume_pi_closedBall, Fintype.card_ofSubsingleton, pow_one,
+        Nat.cast_ofNat, Nat.factorial, mul_one, Nat.cast_one, div_one]
+  | succ m hm hrec =>
+      rw [← set_lintegral_one]
+      simp_rw [Fin.sum_univ_add, Finset.univ_unique, Fin.default_eq_zero, Finset.sum_singleton]
+
+#exit
+
+theorem aux1_volume_computation (n : ℕ) (hn : 1 ≤ n) :
+    volume {x : ((Fin n) → ℝ) | ∑ i, ‖x i‖ ≤ B} = ENNReal.ofReal (2 ^ n * B ^ n / n.factorial) := by
+  induction n, hn using Nat.le_induction with
+  | base =>
+      rw [show {x : Fin 1 → ℝ | ∑ i : Fin 1, ‖x i‖ ≤ B} = Metric.closedBall 0 B by
+        ext; simp [Pi.norm_def]]
+      simp only [zero_le_coe, Real.volume_pi_closedBall, Fintype.card_ofSubsingleton, pow_one,
+        Nat.cast_ofNat, Nat.factorial, mul_one, Nat.cast_one, div_one]
+  | succ m hm hrec =>
+      rw [← set_lintegral_one]
+      simp_rw [Fin.sum_univ_add, Finset.univ_unique, Fin.default_eq_zero, Finset.sum_singleton]
+
+
+#exit
+
+set_option maxHeartbeats 0 in
 theorem aux_volume_computation (r1 r2 : ℕ) (h : 1 ≤ r1 + r2) :
   volume {x : ((Fin r1) → ℝ) × ((Fin r2) → ℂ) |
-    r * ∑ i, ‖x.1 i‖ + c * ∑ j, ‖x.2 j‖ ≤ B } = vol B r1 r2 := by
-  have : ∀ r1,
-      volume {x : ((Fin r1) → ℝ) × ((Fin r2) → ℂ) | r * ∑ i, ‖x.1 i‖ + c * ∑ j, ‖x.2 j‖ ≤ B } =
-        vol B r1 r2 := by
-    intro r1
-    induction r2 with
-    | zero => sorry
+      ∑ i, ‖x.1 i‖ + 2 * ∑ j, ‖x.2 j‖ ≤ B } = vol B r1 r2 := by
+  have : ∀ r1, (h1 : 1 ≤ r1) →
+        volume {x : ((Fin r1) → ℝ) × ((Fin 0) → ℂ) | ∑ i, ‖x.1 i‖ ≤ B } =
+        vol B r1 0 := by
+    intro r1 h1
+    induction r1, h1 using Nat.le_induction with
+    | base =>
+        simp
+        rw [← set_lintegral_one]
+        rw [volume_eq_prod]
+        let μ := (restrict (Measure.prod volume volume)
+          {x : (Fin 1 → ℝ) × (Fin 0 → ℂ)| |Prod.fst x 0| ≤ B})
+        have :  {x : (Fin 1 → ℝ) × (Fin 0 → ℂ)| |Prod.fst x 0| ≤ B} =
+            {x : (Fin 1 → ℝ) | |x 0| ≤ B} ×ˢ Set.univ := by
+          rw [@Set.prod_eq]
+          rw [@Set.preimage_setOf_eq]
+          rw [@Set.preimage_univ]
+          exact Eq.symm (Set.inter_univ _)
+        rw [this]
+        rw [← MeasureTheory.Measure.restrict_prod_eq_prod_univ _]
+        rw [MeasureTheory.lintegral_prod]
+        rw [@lintegral_one]
+        simp
+
+        sorry
     | succ => sorry
-  induction r1 with
+  induction r2 with
   | zero => sorry
   | succ => sorry
 
-example {α β R : Type*} [Ring R] (e : α ≃ β) : (α → R) ≃ (β → R) := by
-  exact Equiv.piCongrLeft' (fun a ↦ R) e
+
+
+#exit
 
 theorem convex_body_sum_volume :
   volume (convex_body_sum K r c B) =
