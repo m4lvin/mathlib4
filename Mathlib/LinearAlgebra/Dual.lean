@@ -737,7 +737,8 @@ open Module
 variable [DecidableEq ι] (h : DualBases e ε)
 
 theorem dual_lc (l : ι →₀ R) (i : ι) : ε i (DualBases.lc e l) = l i := by
-  erw [_root_.map_sum]
+  -- rw [lc, Finsupp.sum, map_sum]
+  erw [map_sum]
   -- Porting note: cannot get at •
   -- simp only [h.eval, map_smul, smul_eq_mul]
   rw [Finset.sum_eq_single i]
