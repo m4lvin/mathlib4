@@ -8,6 +8,7 @@ import Mathlib.Algebra.BigOperators.Pi
 import Mathlib.Algebra.Module.Hom
 import Mathlib.Algebra.Module.Prod
 import Mathlib.Algebra.Module.Submodule.Lattice
+import Mathlib.Algebra.Module.Submodule.LinearMap
 import Mathlib.Algebra.Module.LinearMap
 import Mathlib.Data.DFinsupp.Basic
 import Mathlib.Data.Finsupp.Basic
