@@ -613,18 +613,63 @@ local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y)
 noncomputable abbrev vol (r1 r2 : ℕ) : ℝ≥0∞ :=
     ENNReal.ofReal (2 ^ r1 * (π / 2) ^ r2 * B ^ (r1 + 2 * r2) / (r1 + 2 * r2).factorial)
 
-theorem aux1_volume_computation {α : Type*} (s : Finset α) :
-    volume {x : s → ℝ | ∑ i, ‖x i‖ ≤ B} =
-      ENNReal.ofReal (2 ^ s.card * B ^ s.card / s.card.factorial) := by
+example {n : ℕ} :
+    volume {x : (Fin n) → ℝ | ∑ i, ‖x i‖ ≤ B} =
+      ENNReal.ofReal (2 ^ n * B ^ n / n.factorial) := by
+  induction n generalizing B with
+  | zero =>
+      simp [Nat.zero_eq, Finset.univ_eq_empty, norm_eq_abs, Finset.sum_empty, zero_le_coe,
+        Set.setOf_true, volume_pi_isEmpty, pow_zero, Nat.cast_one, NNReal.coe_one, mul_one,
+        Nat.factorial, ne_eq, one_ne_zero, not_false_eq_true, div_self, ofReal_one]
+  | succ n hn =>
+      let g := MeasurableEquiv.piFinSuccAboveEquiv (fun _ : Fin (n+1) => ℝ) 0
+      have := volume_preserving_piFinSuccAboveEquiv (fun _ : Fin (n+1) => ℝ) 0
+      rw [← lintegral_indicator_one]
+      let s : (Fin n.succ → ℝ) → ℝ≥0∞ := Set.indicator {x | ∑ i, ‖x i‖ ≤ B} (1 : (Fin n.succ → ℝ) → ℝ≥0∞)
+      let t : ℝ × (Fin n → ℝ) → ℝ≥0∞ :=
+        (fun x => Set.indicator (Set.Icc (-B : ℝ) B) 1 x.1) *
+          (fun x => Set.indicator {y : (Fin n → ℝ) | ∑ i, ‖y i‖ ≤ B - ‖x.1‖} 1 x.2)
+      have : ∀ a, s a = t (g a) := sorry
+    --  dsimp only at this
+      simp_rw [this]
+      rw [← lintegral_map_equiv]
+      have := (volume_preserving_piFinSuccAboveEquiv (fun _ : Fin (n+1) => ℝ) 0).map_eq
+      rw [this]
+      rw [volume_eq_prod]
+      rw [lintegral_prod]
+      -- have : ∀ a, t₀ a = t a := sorry
+      have t1 : ∀ C, MeasurableSet {y : Fin n → ℝ | ∑ i : Fin n, ‖y i‖ ≤ C} := sorry
+      -- simp_rw [this]
+      simp
+      simp_rw [lintegral_const_mul _ sorry]
+      simp_rw [lintegral_indicator_one sorry]
+      conv_lhs =>
+        congr
+        rfl
+        ext x
+        erw [hn ⟨B - ‖x‖, sorry⟩]
+      dsimp
+      simp_rw [← Set.indicator_mul_left _ _
+        (fun x => ENNReal.ofReal (↑(2 ^ n) * ((B : ℝ) - |x|) ^ n / ↑(Nat.factorial n)))]
+      rw [lintegral_indicator]
+      simp
+
+      sorry
+
+#help tactic suffices
+
+#exit
   induction s using Finset.induction with
   | empty =>
       simp
-      dsimp [volume]
-      simp_rw [← Set.pi_univ]
+  | insert ha hs =>
+      rename_i a s
+      rw [← set_lintegral_one]
+      have : ∀ x : { x // x ∈ insert a s } → ℝ, ∑ i : { x // x ∈ insert a s }, ‖x i‖ =
+          ∑ i in s, ‖x i‖ + x a := by
+        sorry
+      simp_rw [Finset.sum_insert ha]
       sorry
-  | insert => sorry
-
-  sorry
 
 
 
@@ -651,7 +696,7 @@ theorem aux1_volume_computation (n : ℕ) (hn : 1 ≤ n) :
       simp only [zero_le_coe, Real.volume_pi_closedBall, Fintype.card_ofSubsingleton, pow_one,
         Nat.cast_ofNat, Nat.factorial, mul_one, Nat.cast_one, div_one]
   | succ m hm hrec =>
-      rw [← set_lintegral_one]
+      rw [← set_lintegral_one, lintegral_indicator]
       simp_rw [Fin.sum_univ_add, Finset.univ_unique, Fin.default_eq_zero, Finset.sum_singleton]
 
 

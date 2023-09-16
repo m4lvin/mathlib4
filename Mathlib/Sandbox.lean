@@ -17,15 +17,17 @@ theorem Convex_subAdditive (𝕜 : Type*) {E : Type*} [LinearOrderedRing 𝕜] [
     _ ≤ a • B + b • B := add_le_add (smul_le_smul_of_nonneg hx ha) (smul_le_smul_of_nonneg hy hb)
     _ ≤ B := by rw [← add_smul, hs, one_smul]
 
-open MeasureTheory
+open MeasureTheory MeasureTheory.Measure
 
 @[simp]
-example {α : Type*} [IsEmpty α] : volume (@Set.univ (α → ℝ)) = 1 := by
-    have : InnerProductSpace ℝ (α → ℝ) := sorry
-    let B := OrthonormalBasis.basisFun α ℝ
-    refine OrthonormalBasis.volume_parallelepiped (ι := α) (F := α → ℝ) ?_
+theorem Basis.parallelepiped_isEmpty {ι : Type*} [IsEmpty ι] :
+    (Basis.parallelepiped (Pi.basisFun ℝ ι) : Set (ι → ℝ)) = Set.univ := by
+  ext; simp [mem_parallelepiped_iff]
 
-
+@[simp]
+theorem Real.volume_pi_isEmpty {ι : Type*} [IsEmpty ι] : volume (@Set.univ (ι → ℝ)) = 1 := by
+  rw [← addHaarMeasure_eq_volume_pi, ← Basis.parallelepiped_isEmpty, Basis.parallelepiped_basisFun]
+  exact addHaarMeasure_self
 
 
 #exit
