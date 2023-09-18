@@ -5,6 +5,8 @@ import Mathlib.MeasureTheory.MeasurableSpace.Basic
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 import Mathlib.MeasureTheory.Measure.Haar.InnerProductSpace
+import Mathlib.MeasureTheory.Integral.Lebesgue
+import Mathlib.MeasureTheory.Integral.Bochner
 
 theorem Convex_subAdditive (𝕜 : Type*) {E : Type*} [LinearOrderedRing 𝕜] [AddCommMonoid E]
     [SMul 𝕜 E] {f : E → 𝕜} (hf1 : ∀ x y, f (x + y) ≤ (f x) + (f y))
@@ -29,6 +31,13 @@ theorem Real.volume_pi_isEmpty {ι : Type*} [IsEmpty ι] : volume (@Set.univ (ι
   rw [← addHaarMeasure_eq_volume_pi, ← Basis.parallelepiped_isEmpty, Basis.parallelepiped_basisFun]
   exact addHaarMeasure_self
 
+open ENNReal
+
+theorem lintegral_union₀ {α : Type*} [MeasurableSpace α] {μ : Measure α} {f : α → ℝ≥0∞}
+    {A B : Set α}
+    (hB : NullMeasurableSet B μ) (hAB : AEDisjoint μ A B) :
+    ∫⁻ a in A ∪ B, f a ∂μ = ∫⁻ a in A, f a ∂μ + ∫⁻ a in B, f a ∂μ := by
+  rw [restrict_union₀ hAB hB, lintegral_add_measure]
 
 #exit
 
