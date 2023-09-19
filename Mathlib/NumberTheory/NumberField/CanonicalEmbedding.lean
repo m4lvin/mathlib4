@@ -613,49 +613,18 @@ local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y)
 noncomputable abbrev vol (r1 r2 : ℕ) : ℝ≥0∞ :=
     ENNReal.ofReal (2 ^ r1 * (π / 2) ^ r2 * B ^ (r1 + 2 * r2) / (r1 + 2 * r2).factorial)
 
-noncomputable def I (n : ℕ) (t : ℝ) : ℝ≥0 := if ht : 0 ≤ t then (⟨t, ht⟩ ^ ((n : ℝ) / 2)) else 0
-
-@[simp] theorem I_zero (t : ℝ) : I 0 t = if 0 ≤ t then 1 else 0 := by
-  simp [I]
-
-@[simp] theorem indicator_I (n : ℕ) : (Set.Ici (0 : ℝ)).indicator (I n ·) = I n := by
-  simp (config := {contextual := true}) [not_le_of_lt, I]
-
-example {ι : Type*} [Fintype ι] :
-    volume {x : ι → ℝ | ∑ j, |x j| ≤ B} = (2 * B) ^ (card ι) / (card ι).factorial := by
-  calc volume {x : ι → ℝ | ∑ j, |x j| ≤ B}
-    _ = ∫⁻ x : ι → ℝ, Set.indicator {y : ι → ℝ | (0 : ℝ) ≤ B - ∑ i : ι, |y i|} 1 x := by
-          convert (lintegral_indicator_const _ 1).symm
-          · simp
-          · refine measurableSet_le measurable_const (measurable_const.sub ?_)
-            exact Finset.measurable_sum _
-              (fun i _ => continuous_abs.measurable.comp  (measurable_pi_apply _))
-    _ = ∫⁻ x : ι → ℝ, I 0 (B - ∑ i : ι, |x i|) := by simp [apply_ite, Set.indicator_apply]
-    
-
-
-#exit
---            exact Finset.measurable_sum _ (fun i _ ↦ Measurable.pow_const (measurable_pi_apply _) _)
-    _ = ∫⁻ x : ι → ℝ, I 0 (R ^ 2 - ∑ i : ι, x i ^ 2) := by simp [apply_ite, Set.indicator_apply]
-    _ = B (Fintype.card ι) * R ^ Fintype.card ι := by
-          simpa [A, marginal_univ, marginal_empty, Finset.card_univ, -I_zero] using
-            congr_fun (sphere_aux_emptyset_eq_sphere_aux_univ R) (0 : ι → ℝ)
+theorem convex_body_sum_bounded {n : ℕ} :
+    Metric.Bounded {x : (Fin n) → ℝ | ∑ i, |x i| ≤ B} := by
   sorry
 
-#exit
-
-example {a b c : ℝ} (h : a + b ≤ c) : b ≤ c - a := by exact Iff.mpr le_sub_iff_add_le' h
-
-example {n : ℕ} :
-    volume {x : (Fin n) → ℝ | ∑ i, |x i| ≤ B} = 2 ^ n * B ^ n / n.factorial := by
+example {n : ℕ} (B : ℝ) (h : 0 ≤ B) :
+    volume {x : (Fin n) → ℝ | ∑ i, |x i| ≤ B} = 2 ^ n * (ENNReal.ofReal B) ^ n / n.factorial := by
   induction n generalizing B with
   | zero =>
-      simp only [Nat.zero_eq, Finset.univ_eq_empty, Finset.sum_empty, zero_le_coe, Set.setOf_true,
-        volume_pi_isEmpty, pow_zero, Nat.cast_one, coe_one, mul_one, Nat.factorial, div_one]
+      simp [Nat.zero_eq, Finset.univ_eq_empty, Finset.sum_empty, zero_le_coe, Set.setOf_true,
+        volume_pi_isEmpty, pow_zero, Nat.cast_one, coe_one, mul_one, Nat.factorial, div_one, h]
   | succ n hn =>
-      let g := MeasurableEquiv.piFinSuccAboveEquiv (fun _ : Fin (n+1) => ℝ) 0
-      have := volume_preserving_piFinSuccAboveEquiv (fun _ : Fin (n+1) => ℝ) 0
-      suffices ∫ a, Set.indicator {x | ∑ i, |x i| ≤ ↑B} (1 : (Fin n.succ → ℝ) → ℝ) a =
+      suffices ∫ a, Set.indicator {x | ∑ i, |x i| ≤ B} (1 : (Fin n.succ → ℝ) → ℝ) a =
           2 ^ n.succ * B ^ n.succ / n.succ.factorial by
         have t1 : volume {x : Fin n.succ → ℝ | ∑ i, |x i| ≤ B} ≠ ⊤ := sorry
         rw [← ENNReal.ofReal_toReal t1]
@@ -664,8 +633,13 @@ example {n : ℕ} :
         sorry
       calc
         _ = ∫ y, (fun y :  ℝ × (Fin n → ℝ) =>
-                (Set.indicator {z : Fin n → ℝ| ∑ i , |z i| ≤ (B : ℝ) - |y.1|} 1 y.2 : ℝ)) y := ?_
-        _ = ↑(2 ^ Nat.succ n) * ↑(B ^ Nat.succ n) / ↑(Nat.factorial (Nat.succ n)) := ?_
+                (Set.indicator {z : Fin n → ℝ| ∑ i , |z i| ≤ B - |y.1|} 1 y.2 : ℝ)) y := ?_
+        _ = ∫ x, (volume {z : Fin n → ℝ | ∑ i, |z i| ≤ B - |x|}).toReal := ?_
+        _ = ∫ x, (Set.indicator (Set.Icc (-B) B)
+            fun x => (volume {z : Fin n → ℝ | ∑ i, |z i| ≤ B - |x|}).toReal) x := ?_
+        _ = ∫ x in (-B)..B, 2 ^ n * (B - |x|) ^ n / n.factorial := ?_
+        _ = 2 ^ n.succ * (∫ x in (0 : ℝ)..B, (B - x) ^ n) / n.factorial := ?_
+        _ = 2 ^ n.succ * B ^ n.succ / n.succ.factorial := ?_
       · rw [← (volume_preserving_piFinSuccAboveEquiv (fun _ : Fin (n+1) => ℝ) 0).map_eq,
           integral_map_equiv]
         congr; ext x
@@ -673,22 +647,70 @@ example {n : ℕ} :
         rfl
       · rw [volume_eq_prod]
         rw [integral_prod]
-        have : ∀ x : ℝ, MeasurableSet {z : Fin n → ℝ | ∑ i, |z i| ≤ ↑B - |x|} := sorry
+        have : ∀ x : ℝ, MeasurableSet {z : Fin n → ℝ | ∑ i, |z i| ≤ B - |x|} := sorry
         simp_rw [integral_indicator_one (this _)]
         sorry
-        dsimp
-        refine Integrable.indicator ?_ ?_
+      · congr
+        rw [eq_comm, Set.indicator_eq_self]
+        rw [Function.support_subset_iff']
+        intro x hx
+        rw [Set.mem_Icc, ← abs_le, not_le, ← sub_neg] at hx
+        rw [ENNReal.toReal_eq_zero_iff]
+        left
+        convert MeasureTheory.measure_empty
+        rw [Set.eq_empty_iff_forall_not_mem]
+        intro z
+        rw [Set.mem_setOf_eq, not_le]
+        refine lt_of_lt_of_le hx ?_
+        refine Finset.sum_nonneg' ?_
+        intro _
+        exact abs_nonneg _
+      · rw [MeasureTheory.integral_indicator measurableSet_Icc]
+        rw [set_integral_congr_set_ae Ioc_ae_eq_Icc.symm, ← integral_of_le sorry]
+        refine intervalIntegral.integral_congr ?_
+        intro x hx
+        rw [Set.uIcc_of_le sorry, Set.mem_Icc, ← abs_le, ← sub_nonneg] at hx
+        specialize hn (B - |x|) hx
+        simp_rw [hn, Nat.cast_pow, Nat.cast_ofNat, toReal_div, toReal_mul, toReal_pow, toReal_ofNat,
+          toReal_nat, toReal_ofReal hx]
+      · rw [← integral_add_adjacent_intervals (b := 0)]
+        conv_lhs =>
+          congr
+          congr
+          ext
+          rw [← abs_neg]
+        rw [integral_comp_neg (fun x => (2 ^ n) * (B - |x|) ^ n / ↑(Nat.factorial n))]
+        rw [neg_zero, neg_neg, ← two_mul, intervalIntegral.integral_div, integral_const_mul]
+        rw [mul_div_assoc, ← mul_assoc, mul_div_assoc, Nat.cast_pow, Nat.cast_pow, Nat.cast_ofNat,
+          ← pow_succ]
+        congr 2
+        rw [intervalIntegral.integral_congr]
+        intro x hx
 
-
+        rw [Set.uIcc_of_le sorry, Set.mem_Icc] at hx
+        simp_rw [abs_eq_self.mpr hx.1]
         sorry
-#exit
-      calc
-        _ = ∫ (y : ℝ × (Fin n → ℝ)),
-            (fun x => (Set.indicator (Set.Icc (-(B : ℝ)) ↑B) (1 : (ℝ × (Fin n → ℝ)) → ℝ) x.1) *
-              Set.indicator {y : Fin n → ℝ| ∑ i , |y i| ≤ ↑B - |x.fst|} (1 : (ℝ × (Fin n → ℝ)) → ℝ) x.2) := ?_
-        _  = ↑(2 ^ Nat.succ n) * ↑(B ^ Nat.succ n) / ↑(Nat.factorial (Nat.succ n)) := sorry
+        sorry
+      · rw [integral_comp_sub_left (fun x => x ^ n) B]
+        simp only [Nat.cast_pow, Nat.cast_ofNat, sub_self, sub_zero, integral_pow, ne_eq,
+          add_eq_zero, and_false,
+          not_false_eq_true, zero_pow', Nat.factorial, Nat.cast_mul, Nat.cast_succ]
+        field_simp
 
 #exit
+
+example {n : ℕ} :
+    volume {x : (Fin n) → ℝ | ∑ i, |x i| ≤ B} = 2 ^ n * B ^ n / n.factorial := by
+  induction n generalizing B with
+  | zero =>
+      simp only [Nat.zero_eq, Finset.univ_eq_empty, Finset.sum_empty, zero_le_coe, Set.setOf_true,
+        volume_pi_isEmpty, pow_zero, Nat.cast_one, coe_one, mul_one, Nat.factorial, div_one]
+  | succ n hn =>
+      suffices ∫ a, Set.indicator {x | ∑ i, |x i| ≤ ↑B} (1 : (Fin n.succ → ℝ) → ℝ) a =
+          2 ^ n.succ * B ^ n.succ / n.succ.factorial by
+        sorry
+      let g := MeasurableEquiv.piFinSuccAboveEquiv (fun _ : Fin (n+1) => ℝ) 0
+      have := volume_preserving_piFinSuccAboveEquiv (fun _ : Fin (n+1) => ℝ) 0
       let s : (Fin n.succ → ℝ) → ℝ := Set.indicator {x | ∑ i, |x i| ≤ ↑B} (1 : (Fin n.succ → ℝ) → ℝ)
       let t : ℝ × (Fin n → ℝ) → ℝ :=
         (fun x => Set.indicator (Set.Icc (-(B : ℝ)) B) 1 x.1) *
