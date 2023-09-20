@@ -163,7 +163,7 @@ end NumberField.canonicalEmbedding
 
 namespace NumberField.mixedEmbedding
 
-open NumberField NumberField.InfinitePlace NumberField.ComplexEmbedding FiniteDimensional
+open NumberField NumberField.InfinitePlace  FiniteDimensional
 
 /-- The ambient space `ℝ^r₁ × ℂ^r₂` with `(r₁, r₂)` the signature of `K`. -/
 local notation "E" K =>
@@ -195,6 +195,7 @@ theorem _root_.NumberField.mixedEmbedding_injective [NumberField K] :
 
 section comm_map
 
+open InfinitePlace
 /-- The linear map that makes `canonicalEmbedding` and `mixedEmbedding` commute, see
 `comm_map_canonical_eq_mixed`. -/
 noncomputable def comm_map : ((K →+* ℂ) → ℂ) →ₗ[ℝ] (E K) :=
@@ -233,7 +234,7 @@ theorem disjoint_span_comm_map_ker [NumberField K]:
     exact ⟨integralBasis K i, (canonicalEmbedding.latticeBasis_apply K i).symm⟩
   ext1 φ
   rw [Pi.zero_apply]
-  by_cases hφ : IsReal φ
+  by_cases hφ : ComplexEmbedding.IsReal φ
   · rw [show x φ = (x φ).re by
       rw [eq_comm, ← Complex.conj_eq_iff_re, canonicalEmbedding.conj_apply _ h_mem,
         ComplexEmbedding.isReal_iff.mp hφ], ← Complex.ofReal_zero]
@@ -568,29 +569,29 @@ theorem exists_ne_zero_mem_ringOfIntegers_lt (h : minkowski_bound K < volume (co
 
 end convex_body_lt
 
-section convex_body_sum
+section convexBodySum
 
 open NNReal BigOperators Classical
 
-variable [NumberField K] (B : ℝ≥0)
+variable [NumberField K]  (r c : Type*) [Fintype r] [Fintype c] (B : ℝ)
 
 /-- The convex body equal to the set of points `x : E` such that
 `∑ w real, ‖x w‖ + 2 * ∑ w complex, ‖x w‖ ≤ B`. -/
-abbrev convex_body_sum : Set (E K) := { x | ∑ w, ‖x.1 w‖ + 2 * ∑ w, ‖x.2 w‖ ≤ B }
+abbrev convexBodySum : Set ((r → ℝ) × (c → ℂ)) := { x | ∑ w, ‖x.1 w‖ + 2 * ∑ w, ‖x.2 w‖ ≤ B }
 
-theorem convex_body_sum_mem {x : K} :
-    mixedEmbedding K x ∈ (convex_body_sum K B) ↔
+theorem convexBodySum_mem {x : K} :
+    mixedEmbedding K x ∈ (convexBodySum {w // IsReal w} {w //IsComplex w} B) ↔
       ∑ w : {w // InfinitePlace.IsReal w}, w.val x +
         2 * ∑ w : {w // InfinitePlace.IsComplex w}, w.val x ≤ B := by
   simp_rw [Set.mem_setOf_eq, mixedEmbedding, RingHom.prod_apply, Pi.ringHom_apply,
     ← Complex.norm_real, embedding_of_isReal_apply, norm_embedding_eq]
 
-theorem convex_body_sum_symmetric (x : E K) (hx : x ∈ (convex_body_sum K B)) :
-    -x ∈ (convex_body_sum K B) := by
+theorem convexBodySum_symmetric (x : (r → ℝ) × (c → ℂ)) (hx : x ∈ (convexBodySum r c B)) :
+    -x ∈ (convexBodySum r c B) := by
   simp_rw [Set.mem_setOf_eq, Prod.fst_neg, Prod.snd_neg, Pi.neg_apply, norm_neg]
   exact hx
 
-theorem convex_body_sum_convex : Convex ℝ (convex_body_sum K B) := by
+theorem convexBodySum_convex : Convex ℝ (convexBodySum r c B) := by
   refine Convex_subAdditive ℝ ?_ ?_ B
   · intro x y
     simp_rw [Prod.fst_add, Pi.add_apply, Prod.snd_add]
@@ -610,10 +611,11 @@ open MeasureTheory MeasureTheory.Measure ENNReal Real Fintype intervalIntegral
 -- See: https://github.com/leanprover/lean4/issues/2220
 local macro_rules | `($x ^ $y) => `(HPow.hPow $x $y)
 
-noncomputable abbrev vol (r1 r2 : ℕ) : ℝ≥0∞ :=
-    ENNReal.ofReal (2 ^ r1 * (π / 2) ^ r2 * B ^ (r1 + 2 * r2) / (r1 + 2 * r2).factorial)
+noncomputable abbrev vol : ℝ≥0∞ :=
+    ENNReal.ofReal (2 ^ (card r) * (π / 2) ^ (card c) * B ^ (card r + 2 * card c) /
+      (card r + 2 * card c).factorial)
 
-theorem convex_body_sum_bounded {n : ℕ} :
+theorem convexBodySum_bounded {n : ℕ} :
     Metric.Bounded {x : (Fin n) → ℝ | ∑ i, |x i| ≤ B} := by
   sorry
 
