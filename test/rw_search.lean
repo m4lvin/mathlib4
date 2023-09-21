@@ -22,3 +22,9 @@ example (xs ys : List α) :
 #guard_msgs in
 example {a b c : Int} : a + b = c + b + (a - c) := by
   rw_search
+
+/-! A test of the current tokenization scheme. -/
+/-- info: ["(", "[", "5", ",", "3", "]", ",", "4", "+", "(", "2", "*", "1", ")", ")"] -/
+#guard_msgs in
+open Mathlib.Tactic.RewriteSearch in
+#eval ("([5, 3], 4 + (2 * 1))".splitOn.map splitDelimiters).join
