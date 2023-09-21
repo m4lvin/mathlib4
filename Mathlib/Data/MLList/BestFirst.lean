@@ -41,7 +41,7 @@ If someone would like to generalize appropriately that would be great.
 
 We want to maintain a priority queue of `MLList m β`, each indexed by some `a : α` with a priority.
 To complicate matters, the priorities might be expensive to calculate,
-so we instead keep track of a lower bound for each such `a : α`.
+so we instead keep track of a lower bound (where less is better) for each such `a : α`.
 The priority queue maintains the `MLList m β` in order of the current best lower bound for the
 corresponding `a : α`.
 When we insert a new `α × MLList m β` into the queue, we have to provide a lower bound,
