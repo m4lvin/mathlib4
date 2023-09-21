@@ -24,6 +24,9 @@ section
 
 variable {α β γ : Sort _} {f : α → β}
 
+theorem comp_def (f : β → γ) (g : α → β) : f ∘ g = fun x => f (g x) :=
+  rfl
+
 /-- Evaluate a function at an argument. Useful if you want to talk about the partially applied
   `Function.eval x : (∀ x, β x) → β x`. -/
 @[reducible, simp] def eval {β : α → Sort*} (x : α) (f : ∀ x, β x) : β x := f x
