@@ -85,20 +85,20 @@ order isomorphism `α ≃ ℕ` or `α ≃ ℤ`, depending on whether we have `Or
 We can provide `SuccOrder α` from `LinearOrder α` and `LocallyFiniteOrder α` using
 
 ```lean
+-- TODO check if this works
 lemma exists_min_greater [LinearOrder α] [LocallyFiniteOrder α] {x ub : α} (hx : x < ub) :
-    ∃ lub, x < lub ∧ ∀ y, x < y → lub ≤ y :=
-begin -- very non golfed
+    ∃ lub, x < lub ∧ ∀ y, x < y → lub ≤ y := by
+  -- very non golfed
   have h : (Finset.Ioc x ub).Nonempty := ⟨ub, Finset.mem_Ioc_iff.2 ⟨hx, le_rfl⟩⟩
   use Finset.min' (Finset.Ioc x ub) h
   constructor
   · have := Finset.min'_mem _ h
-    simp * at *
+    simp [*] at *
   rintro y hxy
   obtain hy | hy := le_total y ub
   apply Finset.min'_le
-  simp * at *
+  simp [*] at *
   exact (Finset.min'_le _ _ (Finset.mem_Ioc_iff.2 ⟨hx, le_rfl⟩)).trans hy
-end
 ```
 Note that the converse is not true. Consider `{-2^z | z : ℤ} ∪ {2^z | z : ℤ}`. Any element has a
 successor (and actually a predecessor as well), so it is a `SuccOrder`, but it's not locally finite
