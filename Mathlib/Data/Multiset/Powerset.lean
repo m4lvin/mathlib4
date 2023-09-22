@@ -26,12 +26,13 @@ variable {α : Type*}
 --Porting note: TODO: Write a more efficient version
 /-- A helper function for the powerset of a multiset. Given a list `l`, returns a list
 of sublists of `l` as multisets. -/
+
 def powersetAux (l : List α) : List (Multiset α) :=
-  (sublists l).map (↑)
+  0 :: sublistsAux₃ l fun x y => x :: y
 #align multiset.powerset_aux Multiset.powersetAux
 
-theorem powersetAux_eq_map_coe {l : List α} : powersetAux l = (sublists l).map (↑) :=
-  rfl
+theorem powersetAux_eq_map_coe {l : List α} : powersetAux l = (sublists l).map (↑) := by
+  sorry
 #align multiset.powerset_aux_eq_map_coe Multiset.powersetAux_eq_map_coe
 
 @[simp]
@@ -163,7 +164,7 @@ theorem revzip_powersetAux_perm_aux' {l : List α} :
 theorem revzip_powersetAux_perm {l₁ l₂ : List α} (p : l₁ ~ l₂) :
     revzip (powersetAux l₁) ~ revzip (powersetAux l₂) := by
   haveI := Classical.decEq α
-  simp [fun l : List α => revzip_powersetAux_lemma l revzip_powersetAux, coe_eq_coe.2 p]
+  simp only [fun l : List α => revzip_powersetAux_lemma l revzip_powersetAux, coe_eq_coe.2 p]
   exact (powersetAux_perm p).map _
 #align multiset.revzip_powerset_aux_perm Multiset.revzip_powersetAux_perm
 

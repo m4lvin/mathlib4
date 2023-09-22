@@ -471,4 +471,8 @@ theorem range_bind_sublistsLen_perm {α : Type*} (l : List α) :
     exact l_ih
 #align list.range_bind_sublists_len_perm List.range_bind_sublistsLen_perm
 
+def sublistsAux₃ : List α → (List α → List β → List β) → List β
+| [],     _ => []
+| (a::l), f => f [a] (sublistsAux₃ l (λ ys r => f ys (f (a :: ys) r)))
+
 end List
