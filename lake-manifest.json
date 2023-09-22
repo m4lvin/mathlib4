@@ -36,7 +36,7 @@
   {"git":
    {"url": "https://github.com/JLimperg/aesop",
     "subDir?": null,
-    "rev": "dc04e7cb9c7d22817224df462cadf73ed9501348",
+    "rev": "006286a6b8f70fbc683ba73d3e1a9cdc59b28b85",
     "opts": {},
     "name": "aesop",
     "inputRev?": "ext",
