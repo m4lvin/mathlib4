@@ -18,17 +18,9 @@
     "inputRev?": "master",
     "inherited": false}},
   {"git":
-   {"url": "https://github.com/JLimperg/aesop",
-    "subDir?": null,
-    "rev": "1a0cded2be292b5496e659b730d2accc742de098",
-    "opts": {},
-    "name": "aesop",
-    "inputRev?": "master",
-    "inherited": false}},
-  {"git":
    {"url": "https://github.com/leanprover/std4",
     "subDir?": null,
-    "rev":  "67855403d60daf181775fa1ec63b04e70bcc3921",
+    "rev": "67855403d60daf181775fa1ec63b04e70bcc3921",
     "opts": {},
     "name": "std",
     "inputRev?": "main",
@@ -40,4 +32,12 @@
     "opts": {},
     "name": "proofwidgets",
     "inputRev?": "v0.0.16",
+    "inherited": false}},
+  {"git":
+   {"url": "https://github.com/JLimperg/aesop",
+    "subDir?": null,
+    "rev": "dc04e7cb9c7d22817224df462cadf73ed9501348",
+    "opts": {},
+    "name": "aesop",
+    "inputRev?": "ext",
     "inherited": false}}]}
